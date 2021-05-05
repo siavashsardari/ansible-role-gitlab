@@ -62,7 +62,20 @@
     owner: root
     group: root
     mode: 0700
-  when: gitlab_create_self_signed_cert
+  when: gitlab_create_self_signed_cert or gitlab_wildcard_certs
+
+- name: Copy SSL key file
+  copy:
+    content: "{{ gitlab_ssl_certificate_private_key }}"
+    dest: "{{ gitlab_ssl_certificate_key }}"
+  when: gitlab_ssl_certificate_private_key is defined and gitlab_wildcard_certs and not gitlab_create_self_signed_cert
+
+- name: Copy SSL crt file
+  copy:
+    content: "{{ gitlab_ssl_certificate_public }}"
+    dest: "{{ gitlab_ssl_certificate }}"
+  when: gitlab_ssl_certificate_public is defined and gitlab_wildcard_certs and not gitlab_create_self_signed_cert
+
 
 - name: Create self-signed certificate.
   command: >
